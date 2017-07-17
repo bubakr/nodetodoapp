@@ -4,9 +4,18 @@ const request = require('supertest');
 const {app} = require('./../server')
 const {Todo} = require('./../models/todo');
 
+
+const dummyTodos = [{
+    text: 'First todo'
+}, {
+    text: 'Second todo'
+}];
+
 //Wipe all todos document in database
 beforeEach((done)=>{
-    Todo.remove({}).then(()=> done());
+    Todo.remove({}).then(()=> {
+        Todo.insertMany(dummyTodos);
+    }).then(()=> done());
 });
 
 //strart test case
@@ -27,7 +36,7 @@ describe('POST / Todos', ()=>{
                     return done(err);
                 }
 
-                Todo.find().then((todos)=>{
+                Todo.find({text}).then((todos)=>{
                     expect(todos.length).toBe(1);
                     expect(todos[0].text).toBe(text);
                     done();
@@ -38,7 +47,7 @@ describe('POST / Todos', ()=>{
 
 
 
-    it('should not create a todo with invalid data', ()=>{
+    it('should not create a todo with invalid data', (done)=>{
         var text = "";
 
         request(app)
@@ -51,10 +60,25 @@ describe('POST / Todos', ()=>{
             }
 
             Todo.find().then((todos)=>{
-                expect(todos.length).toBe(0);
+                expect(todos.length).toBe(2);
                 done();
             }).catch((e) => done(e));
         });
-    })
+    });
 
+
+});
+
+
+
+describe('GET /todos', ()=>{
+    it('Should get all todos', (done)=>{
+        request(app)
+            .get('/todos')
+            .expect(200)
+            .expect((res) =>{
+                expect(res.body.todos.length).toBe(2);
+            })
+            .end(done());
+    });
 });
