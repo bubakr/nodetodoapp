@@ -93,7 +93,7 @@ describe('GET /todos', ()=>{
 describe('GET /todo/:id', ()=>{
     it('Should return a todo doc.', (done)=>{
         request(app)
-            .get(`/todo/${dummyTodos[0]._id.toHexString()}`)
+            .get(`/todos/${dummyTodos[0]._id.toHexString()}`)
             .expect(200)
             .expect((res)=>{
                 expect(res.body.todo.text).toBe(dummyTodos[0].text);
@@ -104,7 +104,7 @@ describe('GET /todo/:id', ()=>{
 
     it('Should return 404 if todo not found', (done)=>{
         request(app)
-            .get(`/todo/${newObjectID}`)
+            .get(`/todos/${newObjectID}`)
             .expect(404)
             .end(done);
     });
@@ -112,7 +112,7 @@ describe('GET /todo/:id', ()=>{
 
     it('Should return 404 if id is not a valid ObjectID', (done)=>{
         request(app)
-            .get('/todo/1123123')
+            .get('/todos/1123123')
             .expect(404)
             .end(done);
     });
