@@ -6,7 +6,7 @@ const {app} = require('./../server')
 const {Todo} = require('./../models/todo');
 
 
-const dummyTodos = [{
+const newtodos = [{
     _id: new ObjectID(),
     text: 'First todo'
 }, {
@@ -19,7 +19,7 @@ const newObjectID = new ObjectID();
 //Wipe all todos document in database
 beforeEach((done)=>{
     Todo.remove({}).then(()=> {
-        Todo.insertMany(dummyTodos);
+        Todo.insertMany(newtodos);
     }).then(()=> done());
 });
 
@@ -92,11 +92,12 @@ describe('GET /todos', ()=>{
 
 describe('GET /todo/:id', ()=>{
     it('Should return a todo doc.', (done)=>{
+
         request(app)
-            .get(`/todos/${dummyTodos[0]._id.toHexString()}`)
+            .get(`/todos/${newtodos[0]._id.toHexString()}`)
             .expect(200)
             .expect((res)=>{
-                expect(res.body.todo.text).toBe(dummyTodos[0].text);
+                expect(res.body.todo.text).toBe(newtodos[0].text);
             })
             .end(done);
     });
@@ -115,5 +116,50 @@ describe('GET /todo/:id', ()=>{
             .get('/todos/1123123')
             .expect(404)
             .end(done);
+    });
+});
+
+
+
+
+describe('DELETE /todo/:id', ()=>{
+    it('Should remove a todo', (done)=>{
+        var hexId = newtodos[0]._id.toHexString();
+
+        request(app)
+            .delete(`/todos/${hexId}`)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.todo._id).toBe(hexId);
+            })
+            .end((err, res)=>{
+                if(err){
+                    return done(err);
+                }
+
+                Todo.findById(hexId).then((todo)=>{
+                    expect(todo).toNotExist();
+                    done();
+                }).catch((e)=>done(e));
+            });
+
+    });
+
+    it('Should return 404 if todo not found', (done)=>{
+        var id = new ObjectID().toHexString();
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+
+    });
+
+    it('Should return 404 if ObjectID is invalid', (done)=>{
+        var id = '123123';
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+
     });
 });
