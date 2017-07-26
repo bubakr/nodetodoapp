@@ -23,7 +23,7 @@ const newusers = [{
     password: 'user1pass',
     tokens: [{
         access: 'auth',
-        token: jwt.sign({_id: userOneID, access: 'auth'}, 'abc123').toString()
+        token: jwt.sign({_id: userOneID.toHexString(), access: 'auth'}, 'abc123').toString()
     }]
 },{
     _id: userTwoID,

@@ -12,6 +12,7 @@ var UserSchema = new mongoose.Schema({
         minlength: 6,
         unique: true,
         validate: {
+            isAsync: false,
             validator: validator.isEmail,
             message: '{VALUE} is not a valid email'
         }
@@ -79,7 +80,7 @@ UserSchema.statics.findByCredentials = function (email, password){
         }
 
         return bcrypt.compare(password, user.password).then((res)=>{
-            
+
             if(!res){
                 return Promise.reject();
             }
